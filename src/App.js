@@ -1,7 +1,7 @@
 import { ReactComponent as AirFlowIcon } from './images/airFlow.svg';
 import { ReactComponent as DayCloudyIcon } from './images/day-cloudy.svg';
 import { ReactComponent as RainIcon } from './images/rain.svg';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import { ReactComponent as RefreshIcon } from './images/refresh.svg';
 import { ReactComponent as LoadingIcon } from './images/loading.svg';
 import styled from '@emotion/styled';
@@ -203,24 +203,24 @@ const App = () => {
     isLoading: true,
   });
 
+  const fetchData = useCallback(async () => {
+    setWeatherElement(prevState => ({
+      ...prevState,
+      isLoading: true,
+    }))
+    const [currentWeather, weatherForecast] = await Promise.all([fetchCurrentWeather(), fetchWeatherForecast()]);
+    // console.log(currentWeather, weatherForecast);
+    setWeatherElement({
+      ...currentWeather,
+      ...weatherForecast,
+      isLoading: false,
+    })
+  },[]);
+
   useEffect(() => {
     // console.log('execute function in useEffect!');
-    const fetchData = async () => {
-      setWeatherElement(prevState => ({
-        ...prevState,
-        isLoading: true,
-      }))
-      const [currentWeather, weatherForecast] = await Promise.all([fetchCurrentWeather(), fetchWeatherForecast()]);
-      console.log(currentWeather, weatherForecast);
-      setWeatherElement({
-        ...currentWeather,
-        ...weatherForecast,
-        isLoading: false,
-      })
-      console.log(weatherElement);
-    };
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const {
     observationTime,
@@ -258,7 +258,7 @@ const App = () => {
             hour: 'numeric',
             minute: 'numeric',
           }).format(dayjs(observationTime))}
-            {isLoading ? <LoadingIcon /> : <RefreshIcon onClick={fetchCurrentWeather} />}
+            {isLoading ? <LoadingIcon /> : <RefreshIcon onClick={fetchData} />}
           </Refresh>
         </WeatherCard>
       </Container>
