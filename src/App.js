@@ -1,12 +1,13 @@
 import { ReactComponent as AirFlowIcon } from './images/airFlow.svg';
 import WeatherIcon from './components/WeatherIcon';
 import { ReactComponent as RainIcon } from './images/rain.svg';
-import React, { useState, useEffect,useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ReactComponent as RefreshIcon } from './images/refresh.svg';
 import { ReactComponent as LoadingIcon } from './images/loading.svg';
 import styled from '@emotion/styled';
 import { ThemeProvider } from '@emotion/react';
 import dayjs from 'dayjs';
+import { getMoment } from './utils/helper';
 
 const theme = {
   light: {
@@ -203,6 +204,8 @@ const App = () => {
     isLoading: true,
   });
 
+  const moment = useMemo(() => getMoment(LOCATION_NAME_FORECAST), []);
+
   const fetchData = useCallback(async () => {
     setWeatherElement(prevState => ({
       ...prevState,
@@ -215,7 +218,11 @@ const App = () => {
       ...weatherForecast,
       isLoading: false,
     })
-  },[]);
+  }, []);
+
+  useEffect(() => {
+    setCurrentTheme(moment === 'day' ? 'light':'dark');
+  }, [moment])
 
   useEffect(() => {
     // console.log('execute function in useEffect!');
@@ -231,6 +238,7 @@ const App = () => {
     rainPossibility,
     isLoading,
     comfortability,
+    weatherCode,
   } = weatherElement;
   // render code area
   return (
@@ -244,7 +252,7 @@ const App = () => {
             <Temperature>
               {Math.round(temperature)} <Celsius>°C</Celsius>
             </Temperature>
-            <WeatherIcon />
+            <WeatherIcon weatherCode={weatherCode} moment={moment} />
           </CurrentWeather>
           <AirFlow>
             <AirFlowIcon /> {windSpeed} m/h

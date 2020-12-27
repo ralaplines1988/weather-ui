@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { ReactComponent as DayThunderstorm } from './../images/day-thunderstorm.svg';
 import { ReactComponent as DayClear } from './../images/day-clear.svg';
@@ -71,10 +71,15 @@ const IconContainer = styled.div`
     }
 `;
 
-const WeatherIcon = () => {
+const WeatherIcon = ({weatherCode,moment}) => {
+    // console.log(weatherCode, moment);
+    const weatherType = useMemo(()=> weatherCode2Type(weatherCode),[weatherCode]);
+
+    const weatherIcon = weatherIcons[moment][weatherType];
+    // console.log(weatherIcon);
     return (
         <IconContainer>
-            <DayCloudy />
+            {weatherIcon}
         </IconContainer>
     )
 }
